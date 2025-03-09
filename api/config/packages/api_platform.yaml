@@ -9,3 +9,13 @@ api_platform:
         stateless: true
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
+#    use_symfony_listeners: true
+#    enable_docs: false
+#    enable_entrypoint: false
+#    enable_swagger: false
+#    enable_swagger_ui: false
+    swagger:
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header

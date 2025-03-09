@@ -28,7 +28,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => ['product:read']
             ]
         ),
-        new Post(),
+        new Post(
+        ),
         new Put(),
         new Delete()
     ],

@@ -19,7 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(),
         new Get(),
-        new Post(),
+        new Post(
+            security: "is_granted('ROLE_ADMIN')",
+        ),
         new Put(),
         new Delete()
     ],

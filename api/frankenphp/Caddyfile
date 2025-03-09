@@ -18,6 +18,11 @@
 		}
 	}
 
+	#handle /api {
+    #            rewrite * /docs
+    #            php_server
+    #       }
+
 	root * /app/public
 	encode zstd br gzip
 

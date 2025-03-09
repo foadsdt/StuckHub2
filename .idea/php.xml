@@ -10,6 +10,11 @@
     <option name="highlightLevel" value="WARNING" />
     <option name="transferred" value="true" />
   </component>
+  <component name="PhpCSFixer">
+    <phpcsfixer_settings>
+      <PhpCSFixerConfiguration tool_path="$PROJECT_DIR$/api/vendor/bin/php-cs-fixer" />
+    </phpcsfixer_settings>
+  </component>
   <component name="PhpIncludePathManager">
     <include_path>
       <path value="$PROJECT_DIR$/api/vendor/psr/clock" />
@@ -143,11 +148,21 @@
       <path value="$PROJECT_DIR$/api/vendor/psr/event-dispatcher" />
       <path value="$PROJECT_DIR$/api/vendor/psr/container" />
       <path value="$PROJECT_DIR$/api/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/api/vendor/doctrine/doctrine-fixtures-bundle" />
+      <path value="$PROJECT_DIR$/api/vendor/doctrine/data-fixtures" />
+      <path value="$PROJECT_DIR$/api/vendor/fakerphp/faker" />
+      <path value="$PROJECT_DIR$/api/vendor/zenstruck/foundry" />
+      <path value="$PROJECT_DIR$/api/vendor/zenstruck/assert" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.4" />
   <component name="PhpStanOptionsConfiguration">
     <option name="transferred" value="true" />
+  </component>
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/api/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/api/vendor/autoload.php" use_configuration_file="true" />
+    </phpunit_settings>
   </component>
   <component name="PsalmOptionsConfiguration">
     <option name="transferred" value="true" />
