@@ -17,7 +17,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            security: 'is_granted("PUBLIC_ACCESS")'
+        ),
         new Get(),
         new Post(
             security: "is_granted('ROLE_ADMIN')",

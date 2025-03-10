@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Story\App\Entity\UserStory;
+use App\Story\DefaultCategoriesStory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -15,5 +16,8 @@ class AppFixtures extends Fixture
 
 //        $manager->flush();
         UserStory::load();
+
+//        DefaultCategoriesStory::load();
+
     }
 }

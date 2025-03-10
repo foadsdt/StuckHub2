@@ -29,9 +29,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             ]
         ),
         new Post(
+            security: 'is_granted("ROLE_PRODUCT_CREATE")',
         ),
-        new Put(),
-        new Delete()
+        new Put(
+            security: 'is_granted("ROLE_PRODUCT_CREATE")',
+        ),
+        new Delete(
+            security: 'is_granted("ROLE_ADMIN")',
+        )
     ],
     normalizationContext: ['groups' => ['product:read']],
     denormalizationContext: ['groups' => ['product:write']],
@@ -55,7 +60,7 @@ class Product
     private string $name;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['product:read'])]
+    #[Groups(['product:read','product:write'])]
     #[Assert\NotBlank]
     private ?string $description = null;
 

@@ -29,13 +29,18 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(),
         new Get(),
-        new Post(),
+        new Post(
+            security: "is_granted('PUBLIC_ACCESS')",
+        ),
         new Put(),
-        new Patch(),
+        new Patch(
+            security: "is_granted('ROLE_USER_EDIT')",
+        ),
         new Delete()
     ],
     normalizationContext: ['groups' => ['user:read']],
-    denormalizationContext: ['groups' => ['user:write']]
+    denormalizationContext: ['groups' => ['user:write']],
+//    security:'is_granted("ROLE_USER")'
 )]
 #[UniqueEntity(fields: ['email'], message: 'email should be unique')]
 #[UniqueEntity(fields: ['username'], message: 'username should be unique')]
@@ -49,7 +54,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-//    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
