@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -33,8 +34,10 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("ROLE_PRODUCT_CREATE")',
         ),
         new Patch(
-            security: 'is_granted("ROLE_ADMIN") or (is_granted("ROLE_PRODUCT_EDIT") and object.getSupplier() == user)',
-            securityPostDenormalize: 'is_granted("ROLE_ADMIN") or (object.getSupplier() == user)',
+        // security: 'is_granted("ROLE_ADMIN") or (is_granted("ROLE_PRODUCT_EDIT") and object.getSupplier() == user)',
+        // securityPostDenormalize: 'is_granted("ROLE_ADMIN") or (object.getSupplier() == user)',
+            security: 'is_granted("EDIT",object)',
+            securityPostDenormalize: 'is_granted("EDIT",object)',
         ),
         new Delete(
             security: 'is_granted("ROLE_ADMIN")',
@@ -63,6 +66,7 @@ class Product
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['product:read', 'product:write'])]
+    #[ApiProperty(security: 'is_granted("EDIT",object)')]
     #[Assert\NotBlank]
     private ?string $description = null;
 

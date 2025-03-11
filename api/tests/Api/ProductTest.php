@@ -9,6 +9,41 @@ use Zenstruck\Browser\HttpOptions;
 
 class ProductTest extends ApiTestCase
 {
+
+    public function testGetCollectionOfProducts(): void
+    {
+
+        $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_USER']]);
+
+        ProductFactory::createMany(5);
+
+        $json = $this->browser()
+            ->actingAs($user)
+            ->get('/products', [
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/ld+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(200)
+            ->assertJson()
+            ->assertJsonMatches('"totalItems"', 5)
+            ->json();
+
+        $this->assertSame(array_keys($json->decoded()['member'][0]), [
+            '@id',
+            '@type',
+            'name',
+//            'description',
+            'quantity',
+            'price',
+            'supplier',
+            'category',
+            'createdAt',
+        ]);
+
+    }
+
     public function testPostNewProduct()
     {
         $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_CREATE']]);
@@ -108,8 +143,7 @@ class ProductTest extends ApiTestCase
                 ]
             ])
             ->assertStatus(200)
-            ->assertJsonMatches('quantity', 500)
-        ;
+            ->assertJsonMatches('quantity', 500);
 
 
         $user2 = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_EDIT']]);
@@ -124,8 +158,7 @@ class ProductTest extends ApiTestCase
                     'Content-Type' => 'application/merge-patch+json; charset=utf-8',
                 ]
             ])
-            ->assertStatus(403)
-        ;
+            ->assertStatus(403);
 
         $user2 = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_EDIT']]);
         $this->browser()
@@ -139,8 +172,7 @@ class ProductTest extends ApiTestCase
                     'Content-Type' => 'application/merge-patch+json; charset=utf-8',
                 ]
             ])
-            ->assertStatus(403)
-        ;
+            ->assertStatus(403);
 
     }
 
@@ -148,7 +180,9 @@ class ProductTest extends ApiTestCase
     {
         $user = UserFactory::new()->asAdmin()->create();
 
-        $product = ProductFactory::createOne();
+        $product = ProductFactory::createOne([
+            'description'=>'mi haw haawoo'
+        ]);
 
         $this->browser()
             ->actingAs($user)
@@ -163,7 +197,35 @@ class ProductTest extends ApiTestCase
             ])
             ->assertStatus(200)
             ->assertJsonMatches('quantity', 500)
-            ;
+            ->assertJsonMatches('description', 'mi haw haawoo');
+        ;
+
+    }
+
+    public function testOwnerSeeProductDescription()
+    {
+        $user = UserFactory::new()->withRoles(['ROLE_PRODUCT_EDIT'])->create();
+
+        $product = ProductFactory::createOne([
+            'description'=>'mi haw haawoo',
+            'supplier'=>$user,
+        ]);
+
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/products/' . $product->getId(), [
+                'json' => [
+                    'quantity' => 500
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(200)
+            ->assertJsonMatches('quantity', 500)
+            ->assertJsonMatches('description', 'mi haw haawoo');
+        ;
 
     }
 
