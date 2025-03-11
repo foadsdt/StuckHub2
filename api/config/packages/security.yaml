@@ -40,6 +40,14 @@ security:
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
 
+    role_hierarchy:
+        ROLE_USER: [ ]
+        ROLE_PRODUCT_CREATE: [ ROLE_USER ]
+        ROLE_PRODUCT_EDIT: [ ROLE_USER ]
+        ROLE_ORDER_VIEW: [ ROLE_USER ]
+        ROLE_ADMIN: [ ROLE_PRODUCT_CREATE, ROLE_PRODUCT_EDIT, ROLE_ORDER_VIEW ]
+        ROLE_SUPER_ADMIN: [ ROLE_ADMIN ]
+
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:

@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
@@ -31,8 +32,9 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             security: 'is_granted("ROLE_PRODUCT_CREATE")',
         ),
-        new Put(
-            security: 'is_granted("ROLE_PRODUCT_CREATE")',
+        new Patch(
+            security: 'is_granted("ROLE_ADMIN") or (is_granted("ROLE_PRODUCT_EDIT") and object.getSupplier() == user)',
+            securityPostDenormalize: 'is_granted("ROLE_ADMIN") or (object.getSupplier() == user)',
         ),
         new Delete(
             security: 'is_granted("ROLE_ADMIN")',
@@ -60,7 +62,7 @@ class Product
     private string $name;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['product:read','product:write'])]
+    #[Groups(['product:read', 'product:write'])]
     #[Assert\NotBlank]
     private ?string $description = null;
 
@@ -90,7 +92,7 @@ class Product
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['product:read'])]
-    private \DateTimeInterface $createdAt;
+    private ?\DateTime $createdAt;
 
 
     public function __construct()
@@ -152,14 +154,14 @@ class Product
     }
 
     /**
-     * @param \DateTimeImmutable|null $createdAt
+     * @param \DateTime|null $createdAt
      */
-    public function setCreatedAt(?\DateTimeImmutable $createdAt): void
+    public function setCreatedAt(?\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }

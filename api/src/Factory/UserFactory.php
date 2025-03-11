@@ -29,6 +29,16 @@ final class UserFactory extends PersistentProxyObjectFactory
         parent::__construct();
     }
 
+    public function withRoles(array $roles): self
+    {
+        return $this->with(['roles' => $roles]);
+    }
+
+    public function asAdmin(): self
+    {
+        return $this->with(['roles' => ['ROLE_ADMIN']]);
+    }
+
     public static function class(): string
     {
         return User::class;

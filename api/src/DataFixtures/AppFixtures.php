@@ -2,8 +2,9 @@
 
 namespace App\DataFixtures;
 
-use App\Story\App\Entity\UserStory;
 use App\Story\DefaultCategoriesStory;
+use App\Story\DefaultProductsStory;
+use App\Story\DefaultUsersStory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -14,10 +15,10 @@ class AppFixtures extends Fixture
         // $product = new Product();
         // $manager->persist($product);
 
-//        $manager->flush();
-        UserStory::load();
+        //        $manager->flush();
 
+//        DefaultUsersStory::load();
 //        DefaultCategoriesStory::load();
-
+        DefaultProductsStory::load();
     }
 }

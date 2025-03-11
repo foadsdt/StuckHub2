@@ -3,6 +3,7 @@
 namespace App\Tests\Api;
 
 use App\Factory\CategoryFactory;
+use App\Factory\ProductFactory;
 use App\Factory\UserFactory;
 use Zenstruck\Browser\HttpOptions;
 
@@ -79,7 +80,90 @@ class ProductTest extends ApiTestCase
                 ]
             ])
             ->assertStatus(403);
+    }
 
+    public function testPatchToUpdateProduct()
+    {
+        $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_EDIT']]);
+//        $user = UserFactory::createOne();
+
+        $category = CategoryFactory::createOne();
+
+        $product = ProductFactory::createOne(
+            [
+                'supplier' => $user,
+                'category' => $category,
+            ]
+        );
+
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/products/' . $product->getId(), [
+                'json' => [
+                    'quantity' => 500,
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(200)
+            ->assertJsonMatches('quantity', 500)
+        ;
+
+
+        $user2 = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_EDIT']]);
+        $this->browser()
+            ->actingAs($user2)
+            ->patch('/products/' . $product->getId(), [
+                'json' => [
+                    'quantity' => 500,
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(403)
+        ;
+
+        $user2 = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_EDIT']]);
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/products/' . $product->getId(), [
+                'json' => [
+                    'supplier' => '/users/' . $user2->getId(),
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(403)
+        ;
+
+    }
+
+    public function testAdminCanPatchToEditProduct()
+    {
+        $user = UserFactory::new()->asAdmin()->create();
+
+        $product = ProductFactory::createOne();
+
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/products/' . $product->getId(), [
+                'json' => [
+                    'quantity' => 500
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(200)
+            ->assertJsonMatches('quantity', 500)
+            ;
 
     }
 
