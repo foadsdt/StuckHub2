@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Repository\UserRepository;
+use App\Validator\ProductsAllowedSupplierChange;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -106,6 +107,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'supplier', cascade: ['persist'], orphanRemoval: true)]
     #[Groups(['user:read', 'user:write'])]
     #[Assert\Valid]
+    #[ProductsAllowedSupplierChange]
     private Collection $products;
 
 

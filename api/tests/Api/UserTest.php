@@ -68,14 +68,14 @@ class UserTest extends ApiTestCase
             ->patch('/users/' . $user->getId(), [
                 'json' => [
                     'username' => 'test2',
-                    'products'
+                    'products' => ['/products/' . $product->getId()],
                 ],
                 'headers' => [
                     'Accept' => 'application/ld+json',
                     'Content-Type' => 'application/merge-patch+json; charset=utf-8',
                 ]
             ])
-            ->assertStatus(200);;
+            ->assertStatus(422);;
     }
 
 
