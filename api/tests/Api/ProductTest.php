@@ -93,6 +93,30 @@ class ProductTest extends ApiTestCase
 
     }
 
+    public function testPostNewProductAutoSupplier()
+    {
+        $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_CREATE']]);
+        $userToken = $this->getUserToken($user);
+
+        $this->browser()
+            ->post('/products', [
+                'json' => [
+                    'name' => 'test',
+                    'quantity' => 5,
+                    'price' => 2000.0,
+                    'description' => 'test description',
+                    'category' => '/categories/' . CategoryFactory::createOne()->getId(),
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/ld+json; charset=utf-8',
+                    'Authorization' => 'Bearer ' . $userToken
+                ]
+            ])
+            ->assertStatus(201);
+
+    }
+
     public function testPostNewProductDenied()
     {
         $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_EDIT']]);
@@ -252,9 +276,7 @@ class ProductTest extends ApiTestCase
             ->assertStatus(200)
             ->assertJsonMatches('quantity', 500)
             ->assertJsonMatches('isVerified', false)
-            ->assertJsonMatches('isMine', true)
-
-        ;
+            ->assertJsonMatches('isMine', true);
 
     }
 

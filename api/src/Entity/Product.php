@@ -100,7 +100,7 @@ class Product
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['product:read', 'product:write'])]
     #[Assert\Valid]
-    #[Assert\NotNull]
+//    #[Assert\NotNull]
     #[IsValidSupplier]
     #[ApiFilter(SearchFilter::class)]
     private ?User $supplier = null;
