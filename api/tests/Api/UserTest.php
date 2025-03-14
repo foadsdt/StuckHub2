@@ -2,6 +2,8 @@
 
 namespace App\Tests\Api;
 
+use App\Factory\UserFactory;
+
 class UserTest extends ApiTestCase
 {
     public function testPostToCreateUser()
@@ -23,4 +25,29 @@ class UserTest extends ApiTestCase
             ])
             ->assertStatus(201);
     }
+
+    public function testPatchToUpdateUser()
+    {
+
+        $user = UserFactory::createOne([
+            'roles' => ['ROLE_USER_EDIT']
+            ]
+        );
+
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/users/' . $user->getId(), [
+                'json' => [
+                    'username' => 'test2',
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(200);
+        ;
+    }
+    
+    
 }

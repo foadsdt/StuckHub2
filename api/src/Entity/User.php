@@ -32,6 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(),
         new Post(
             security: "is_granted('PUBLIC_ACCESS')",
+            validationContext: ['groups' => ['Default', 'postValidation']],
 //            processor: UserHashPasswordProcessor::class,
         ),
         new Put(),
@@ -89,7 +90,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Groups(['user:write'])]
     #[SerializedName('password')]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(groups: ['postValidation'])]
     private ?string $plainPassword = null;
 
 
