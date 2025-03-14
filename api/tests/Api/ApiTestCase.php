@@ -21,9 +21,13 @@ abstract class ApiTestCase extends KernelTestCase
     protected function browser(array $options = [], array $server = []): KernelBrowser
     {
         return $this->BrowserHasBrowser($options, $server)
-//            ->setDefaultHttpOptions(HttpOptions::create()
-//                ->withHeader('Content-Type', 'application/ld+json')
-            ;
+            ->setDefaultHttpOptions(HttpOptions::create()
+//                ->withHeader('Content-Type', 'application/ld+json'))
+//                ->withHeaders([
+//                    'Accept' => 'application/ld+json',
+//                    'Content-Type' => 'application/ld+json; charset=utf-8'
+//                ])
+            );
     }
 
     protected function getUserToken(User $user)
