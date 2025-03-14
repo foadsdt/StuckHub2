@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -66,7 +67,7 @@ class Product
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['product:read', 'product:write'])]
-    #[ApiProperty(security: 'is_granted("EDIT",object)')]
+//    #[ApiProperty(security: 'is_granted("EDIT",object)')]
     #[Assert\NotBlank]
     private ?string $description = null;
 
@@ -97,6 +98,13 @@ class Product
     #[ORM\Column(type: 'datetime')]
     #[Groups(['product:read'])]
     private ?\DateTime $createdAt;
+
+    #[ORM\Column]
+    #[ApiFilter(BooleanFilter::class)]
+//    #[Groups(['product:read', 'product:write'])]
+    #[ApiProperty(security: 'is_granted("EDIT",object)')]
+    #[Groups(['admin:read', 'admin:write','supplier:read'])]
+    private bool $isVerified = false;
 
 
     public function __construct()
@@ -188,6 +196,16 @@ class Product
     public function setCategory(?Category $category): void
     {
         $this->category = $category;
+    }
+
+    public function getIsVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): void
+    {
+        $this->isVerified = $isVerified;
     }
 
 

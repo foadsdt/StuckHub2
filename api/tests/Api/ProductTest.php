@@ -181,7 +181,7 @@ class ProductTest extends ApiTestCase
         $user = UserFactory::new()->asAdmin()->create();
 
         $product = ProductFactory::createOne([
-            'description'=>'mi haw haawoo'
+            'isVerified' => false
         ]);
 
         $this->browser()
@@ -197,18 +197,18 @@ class ProductTest extends ApiTestCase
             ])
             ->assertStatus(200)
             ->assertJsonMatches('quantity', 500)
-            ->assertJsonMatches('description', 'mi haw haawoo');
-        ;
+            ->assertJsonMatches('isVerified', false);
+
 
     }
 
-    public function testOwnerSeeProductDescription()
+    public function testOwnerSeeProductIsVerified()
     {
         $user = UserFactory::new()->withRoles(['ROLE_PRODUCT_EDIT'])->create();
 
         $product = ProductFactory::createOne([
-            'description'=>'mi haw haawoo',
-            'supplier'=>$user,
+            'isVerified' => false,
+            'supplier' => $user,
         ]);
 
         $this->browser()
@@ -224,8 +224,7 @@ class ProductTest extends ApiTestCase
             ])
             ->assertStatus(200)
             ->assertJsonMatches('quantity', 500)
-            ->assertJsonMatches('description', 'mi haw haawoo');
-        ;
+            ->assertJsonMatches('isVerified', false);;
 
     }
 
