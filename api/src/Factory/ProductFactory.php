@@ -38,6 +38,7 @@ final class ProductFactory extends PersistentProxyObjectFactory
             'price' => self::faker()->randomFloat(min: 100000, max: 1000000),
             'quantity' => self::faker()->randomNumber(),
             'category' => CategoryFactory::new(),
+            'isVerified' => self::faker()->boolean(),
             'supplier' => UserFactory::new(),
         ];
     }

@@ -44,6 +44,32 @@ class ProductTest extends ApiTestCase
 
     }
 
+    public function testGetCollectionOfVerifiedProducts(): void
+    {
+
+        $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_USER']]);
+
+        ProductFactory::createMany(5, [
+            'isVerified' => true,
+        ]);
+
+        ProductFactory::createOne([
+            'isVerified' => false,
+        ]);
+
+        $this->browser()
+            ->actingAs($user)
+            ->get('/products', [
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/ld+json; charset=utf-8',
+                ]
+            ])
+            ->assertJsonMatches('"totalItems"', 5)
+        ;
+
+    }
+
     public function testPostNewProduct()
     {
         $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_CREATE']]);
