@@ -34,7 +34,7 @@ class ProductTest extends ApiTestCase
             '@id',
             '@type',
             'name',
-//            'description',
+            'description',
             'quantity',
             'price',
             'supplier',
@@ -172,7 +172,8 @@ class ProductTest extends ApiTestCase
                     'Content-Type' => 'application/merge-patch+json; charset=utf-8',
                 ]
             ])
-            ->assertStatus(403);
+//            ->assertStatus(403); -> validation error
+            ->assertStatus(422); //-> invalid data
 
     }
 
@@ -225,6 +226,35 @@ class ProductTest extends ApiTestCase
             ->assertStatus(200)
             ->assertJsonMatches('quantity', 500)
             ->assertJsonMatches('isVerified', false);;
+
+    }
+
+    public function testOwnerSeeProductIsVerifiedAndIsMine()
+    {
+        $user = UserFactory::new()->withRoles(['ROLE_PRODUCT_EDIT'])->create();
+
+        $product = ProductFactory::createOne([
+            'isVerified' => false,
+            'supplier' => $user,
+        ]);
+
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/products/' . $product->getId(), [
+                'json' => [
+                    'quantity' => 500
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(200)
+            ->assertJsonMatches('quantity', 500)
+            ->assertJsonMatches('isVerified', false)
+            ->assertJsonMatches('isMine', true)
+
+        ;
 
     }
 

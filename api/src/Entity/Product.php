@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Repository\ProductRepository;
+use App\Validator\IsValidSupplier;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -38,7 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         // security: 'is_granted("ROLE_ADMIN") or (is_granted("ROLE_PRODUCT_EDIT") and object.getSupplier() == user)',
         // securityPostDenormalize: 'is_granted("ROLE_ADMIN") or (object.getSupplier() == user)',
             security: 'is_granted("EDIT",object)',
-            securityPostDenormalize: 'is_granted("EDIT",object)',
+//            securityPostDenormalize: 'is_granted("EDIT",object)',
         ),
         new Delete(
             security: 'is_granted("ROLE_ADMIN")',
@@ -87,6 +88,8 @@ class Product
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['product:read', 'product:write'])]
     #[Assert\Valid]
+    #[Assert\NotNull]
+    #[IsValidSupplier]
     private ?User $supplier = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]

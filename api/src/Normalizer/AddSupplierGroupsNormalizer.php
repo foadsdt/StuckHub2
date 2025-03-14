@@ -27,7 +27,13 @@ class AddSupplierGroupsNormalizer implements NormalizerInterface, SerializerAwar
             $context['groups'][] = 'supplier:read';
         }
 
-        return $this->normalizer->normalize($data, $format, $context);
+        $normalized =  $this->normalizer->normalize($data, $format, $context);
+
+        if ($data instanceof Product && $this->security->getUser() === $data->getSupplier()){
+            $normalized['isMine'] = true;
+        }
+
+        return $normalized;
     }
 
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
