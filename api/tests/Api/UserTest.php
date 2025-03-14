@@ -2,6 +2,7 @@
 
 namespace App\Tests\Api;
 
+use App\Factory\ProductFactory;
 use App\Factory\UserFactory;
 
 class UserTest extends ApiTestCase
@@ -30,7 +31,7 @@ class UserTest extends ApiTestCase
     {
 
         $user = UserFactory::createOne([
-            'roles' => ['ROLE_USER_EDIT']
+                'roles' => ['ROLE_USER_EDIT']
             ]
         );
 
@@ -45,9 +46,37 @@ class UserTest extends ApiTestCase
                     'Content-Type' => 'application/merge-patch+json; charset=utf-8',
                 ]
             ])
-            ->assertStatus(200);
-        ;
+            ->assertStatus(200);;
     }
-    
-    
+
+    public function testProductsCannotBeStolen()
+    {
+
+        $user = UserFactory::createOne([
+                'roles' => ['ROLE_USER_EDIT']
+            ]
+        );
+
+        $otherUser = UserFactory::createOne();
+
+        $product = ProductFactory::createOne([
+            'supplier' => $otherUser
+        ]);
+
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/users/' . $user->getId(), [
+                'json' => [
+                    'username' => 'test2',
+                    'products'
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(200);;
+    }
+
+
 }

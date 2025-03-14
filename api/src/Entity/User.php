@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Patch;
@@ -45,6 +46,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => ['user:write']],
 //    security:'is_granted("ROLE_USER")'
 )]
+#[ApiResource(
+    uriTemplate: '/products/{product_id}/supplier.{_format}',
+    operations: [new Get()],
+    uriVariables: ['product_id' => new Link(
+        fromProperty: 'supplier',
+        fromClass: Product::class
+    )],
+    normalizationContext: ['groups' => ['user:read']],
+)]
 #[UniqueEntity(fields: ['email'], message: 'email should be unique')]
 #[UniqueEntity(fields: ['username'], message: 'username should be unique')]
 #[ApiFilter(PropertyFilter::class)]
@@ -80,7 +90,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'product:item:get', 'product:write'])]
     #[Assert\NotBlank]
     private ?string $username = null;
 
@@ -93,10 +103,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(groups: ['postValidation'])]
     private ?string $plainPassword = null;
 
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'supplier', cascade: ['persist'], orphanRemoval: true)]
+    #[Groups(['user:read', 'user:write'])]
+    #[Assert\Valid]
+    private Collection $products;
+
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->products = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,6 +223,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPlainPassword(string $plainPassword): void
     {
         $this->plainPassword = $plainPassword;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+            $product->setSupplier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        if ($this->products->contains($product)) {
+            $this->products->removeElement($product);
+            if ($product->getSupplier() === $this) {
+                $product->setSupplier(null);
+            }
+        }
+
+        return $this;
     }
 
 

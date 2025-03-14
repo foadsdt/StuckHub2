@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
@@ -45,14 +46,25 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("ROLE_ADMIN")',
         )
     ],
-    normalizationContext: ['groups' => ['product:read']],
+    normalizationContext: ['groups' => ['product:read', 'product:item:get']],
     denormalizationContext: ['groups' => ['product:write']],
     paginationItemsPerPage: 30
+)]
+#[ApiResource(
+    uriTemplate: '/users/{user_id}/products.{_format}',
+    operations: [new GetCollection()],
+    uriVariables: [
+        'user_id' => new Link(
+            fromProperty: 'products',
+            fromClass: User::class
+        )
+    ],
+    normalizationContext: ['groups' => ['product:read']]
 )]
 #[ApiFilter(PropertyFilter::class)]
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\Table]
-##[ApiFilter(SearchFilter::class, strategy: 'partial', properties: ['supplier.username'])]
+#[ApiFilter(SearchFilter::class, strategy: 'partial', properties: ['supplier.username'])]
 class Product
 {
     #[ORM\Id]
@@ -61,35 +73,36 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['product:read', 'product:write'])]
+    #[Groups(['product:read', 'product:write', 'user:read', 'user:write'])]
     #[ApiFilter(SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank]
     private string $name;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['product:read', 'product:write'])]
+    #[Groups(['product:read', 'product:write', 'user:read', 'user:write'])]
 //    #[ApiProperty(security: 'is_granted("EDIT",object)')]
     #[Assert\NotBlank]
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(['product:read', 'product:write'])]
+    #[Groups(['product:read', 'product:write', 'user:read', 'user:write'])]
     #[ApiFilter(RangeFilter::class)]
     #[Assert\GreaterThanOrEqual(0)]
     private ?int $quantity = 0;
 
     #[ORM\Column]
-    #[Groups(['product:read', 'product:write'])]
+    #[Groups(['product:read', 'product:write', 'user:read', 'user:write'])]
     #[Assert\GreaterThanOrEqual(0)]
     #[ApiFilter(RangeFilter::class)]
     private ?float $price = 0;
 
-    #[ORM\ManyToOne()]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['product:read', 'product:write'])]
     #[Assert\Valid]
     #[Assert\NotNull]
     #[IsValidSupplier]
+    #[ApiFilter(SearchFilter::class)]
     private ?User $supplier = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
@@ -106,7 +119,7 @@ class Product
     #[ApiFilter(BooleanFilter::class)]
 //    #[Groups(['product:read', 'product:write'])]
     #[ApiProperty(security: 'is_granted("EDIT",object)')]
-    #[Groups(['admin:read', 'admin:write','supplier:read'])]
+    #[Groups(['admin:read', 'admin:write', 'supplier:read'])]
     private bool $isVerified = false;
 
 
