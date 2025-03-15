@@ -29,7 +29,19 @@ class ProductSetSupplierProcessor implements ProcessorInterface
             $data->setSupplier($user);
         }
 
-        return $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
+//        return $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
+         $processor = $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
+
+        if($data instanceof Product) {
+            $data->setIsSuppliedByAuthenticatedUser(
+                $this->security->getUser() === $data->getSupplier()
+            );
+        }
+
+        return $processor;
+
         // Handle the state
+
+
     }
 }

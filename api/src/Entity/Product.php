@@ -17,12 +17,14 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Repository\ProductRepository;
+use App\State\ProductStateProvider;
 use App\Validator\IsValidSupplier;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -48,7 +50,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     normalizationContext: ['groups' => ['product:read', 'product:item:get']],
     denormalizationContext: ['groups' => ['product:write']],
-    paginationItemsPerPage: 30
+    paginationItemsPerPage: 30,
+    provider: ProductStateProvider::class
 )]
 #[ApiResource(
     uriTemplate: '/users/{user_id}/products.{_format}',
@@ -122,6 +125,11 @@ class Product
     #[Groups(['admin:read', 'admin:write', 'supplier:read'])]
     private bool $isVerified = false;
 
+
+    /**
+     * @var bool Non-persisted Property to help if product is supplied by authenticated User
+     */
+    private bool $isSuppliedByAuthenticatedUser;
 
     public function __construct()
     {
@@ -223,6 +231,24 @@ class Product
     {
         $this->isVerified = $isVerified;
     }
+
+    #[Groups(['product:read'])]
+    #[SerializedName('isMine')]
+    public function getIsSuppliedByAuthenticatedUser(): bool
+    {
+        if(!isset($this->isSuppliedByAuthenticatedUser)){
+            throw new \LogicException('You Must Call SerIsSuppliedByAuthenticatedUser()');
+        }
+
+        return $this->isSuppliedByAuthenticatedUser;
+    }
+
+    public function setIsSuppliedByAuthenticatedUser(bool $isSuppliedByAuthenticatedUser): void
+    {
+        $this->isSuppliedByAuthenticatedUser = $isSuppliedByAuthenticatedUser;
+    }
+
+
 
 
 }

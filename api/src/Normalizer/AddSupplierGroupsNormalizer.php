@@ -29,9 +29,9 @@ class AddSupplierGroupsNormalizer implements NormalizerInterface, SerializerAwar
 
         $normalized =  $this->normalizer->normalize($data, $format, $context);
 
-        if ($data instanceof Product && $this->security->getUser() === $data->getSupplier()){
-            $normalized['isMine'] = true;
-        }
+//        if ($data instanceof Product && $this->security->getUser() === $data->getSupplier()){
+//            $normalized['isMine'] = true;
+//        }
 
         return $normalized;
     }
