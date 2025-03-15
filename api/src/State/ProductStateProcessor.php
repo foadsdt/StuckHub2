@@ -2,18 +2,21 @@
 
 namespace App\State;
 
+use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Product;
 use App\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-#[AsDecorator('api_platform.doctrine.orm.state.persist_processor')]
-class ProductSetSupplierProcessor implements ProcessorInterface
+//#[AsDecorator('api_platform.doctrine.orm.state.persist_processor')]
+class ProductStateProcessor implements ProcessorInterface
 {
 
     public function __construct(
+        #[Autowire(service: PersistProcessor::class)]
         private ProcessorInterface $decoratedProcessor,
         private Security           $security
     )
@@ -25,18 +28,18 @@ class ProductSetSupplierProcessor implements ProcessorInterface
         /** @var User $user */
         $user = $this->security->getUser();
 
-        if ($data instanceof Product && !$data->getSupplier() && $user) {
+        assert($data instanceof Product);
+
+        if (!$data->getSupplier() && $user) {
             $data->setSupplier($user);
         }
 
 //        return $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
-         $processor = $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
+        $processor = $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
 
-        if($data instanceof Product) {
-            $data->setIsSuppliedByAuthenticatedUser(
-                $this->security->getUser() === $data->getSupplier()
-            );
-        }
+        $data->setIsSuppliedByAuthenticatedUser(
+            $this->security->getUser() === $data->getSupplier()
+        );
 
         return $processor;
 

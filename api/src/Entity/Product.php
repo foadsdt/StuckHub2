@@ -17,6 +17,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Repository\ProductRepository;
+use App\State\ProductStateProcessor;
 use App\State\ProductStateProvider;
 use App\Validator\IsValidSupplier;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -37,11 +38,13 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             security: 'is_granted("ROLE_PRODUCT_CREATE")',
+            processor: ProductStateProcessor::class
         ),
         new Patch(
         // security: 'is_granted("ROLE_ADMIN") or (is_granted("ROLE_PRODUCT_EDIT") and object.getSupplier() == user)',
         // securityPostDenormalize: 'is_granted("ROLE_ADMIN") or (object.getSupplier() == user)',
             security: 'is_granted("EDIT",object)',
+            processor: ProductStateProcessor::class
 //            securityPostDenormalize: 'is_granted("EDIT",object)',
         ),
         new Delete(
@@ -121,8 +124,8 @@ class Product
     #[ORM\Column]
     #[ApiFilter(BooleanFilter::class)]
 //    #[Groups(['product:read', 'product:write'])]
-    #[ApiProperty(security: 'is_granted("EDIT",object)')]
-    #[Groups(['admin:read', 'admin:write', 'supplier:read'])]
+//    #[ApiProperty(security: 'is_granted("EDIT",object)')]
+    #[Groups(['admin:read', 'admin:write', 'supplier:read', 'product:write'])]
     private bool $isVerified = false;
 
 
@@ -236,7 +239,7 @@ class Product
     #[SerializedName('isMine')]
     public function getIsSuppliedByAuthenticatedUser(): bool
     {
-        if(!isset($this->isSuppliedByAuthenticatedUser)){
+        if (!isset($this->isSuppliedByAuthenticatedUser)) {
             throw new \LogicException('You Must Call SerIsSuppliedByAuthenticatedUser()');
         }
 
@@ -247,8 +250,6 @@ class Product
     {
         $this->isSuppliedByAuthenticatedUser = $isSuppliedByAuthenticatedUser;
     }
-
-
 
 
 }

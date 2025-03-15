@@ -322,5 +322,30 @@ class ProductTest extends ApiTestCase
 
     }
 
+    public function testPublishProduct()
+    {
+        $user = UserFactory::new()->withRoles(['ROLE_PRODUCT_EDIT'])->create();
+
+        $product = ProductFactory::createOne([
+            'isVerified' => false,
+            'supplier' => $user,
+        ]);
+
+        $this->browser()
+            ->actingAs($user)
+            ->patch('/products/' . $product->getId(), [
+                'json' => [
+                    'isVerified' => true
+                ],
+                'headers' => [
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                ]
+            ])
+            ->assertStatus(200)
+            ->assertJsonMatches('isVerified', true)
+            ;
+
+    }
 
 }
