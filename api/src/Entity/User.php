@@ -105,7 +105,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $plainPassword = null;
 
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'supplier', cascade: ['persist'], orphanRemoval: true)]
-    #[Groups(['user:read', 'user:write'])]
+//    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:write'])]
     #[Assert\Valid]
     #[ProductsAllowedSupplierChange]
     private Collection $products;
@@ -233,6 +234,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getProducts(): Collection
     {
         return $this->products;
+    }
+
+    #[Groups(['user:read'])]
+    #[SerializedName('products')]
+    public function getVerifiedProducts(): Collection
+    {
+        return $this->getProducts()->filter(static function (Product $product) {
+            return $product->getIsVerified();
+        });
     }
 
     public function addProduct(Product $product): self

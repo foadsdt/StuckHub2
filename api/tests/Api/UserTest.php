@@ -78,5 +78,19 @@ class UserTest extends ApiTestCase
             ->assertStatus(422);;
     }
 
+    public function testUnverifiedProductsNotReturned()
+    {
+        $user = UserFactory::createOne();
+        $product = ProductFactory::createOne([
+            'isVerified' => false,
+            'supplier' => $user
+        ]);
+
+        $this->browser()
+            ->actingAs(UserFactory::createOne())
+            ->get('/users/' . $user->getId())
+            ->assertJsonMatches('length("products")', 0);
+    }
+
 
 }
