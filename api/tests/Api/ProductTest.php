@@ -3,6 +3,7 @@
 namespace App\Tests\Api;
 
 use App\Factory\CategoryFactory;
+use App\Factory\NotificationFactory;
 use App\Factory\ProductFactory;
 use App\Factory\UserFactory;
 use Zenstruck\Browser\HttpOptions;
@@ -68,8 +69,7 @@ class ProductTest extends ApiTestCase
                     ]
                 ])
                 ->assertJsonMatches('"totalItems"', 5)
-                ->json();
-        ;
+                ->json();;
 
         $this->assertSame(array_keys($json->decoded()['member'][0]), [
             '@id',
@@ -343,8 +343,9 @@ class ProductTest extends ApiTestCase
                 ]
             ])
             ->assertStatus(200)
-            ->assertJsonMatches('isVerified', true)
-            ;
+            ->assertJsonMatches('isVerified', true);
+
+        NotificationFactory::repository()->assert()->count(1);
 
     }
 
