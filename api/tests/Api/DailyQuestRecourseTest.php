@@ -2,11 +2,17 @@
 
 namespace App\Tests\Api;
 
+use App\Factory\ProductFactory;
+
 class DailyQuestRecourseTest extends ApiTestCase
 {
     public function testPatchCanUpdateStatus()
     {
-//        $yesterday = new \DateTime('-1 day');
+
+        // quests need at least some products to be available
+        ProductFactory::createMany(5);
+
+        // $yesterday = new \DateTime('-1 day');
         $day = new \DateTime('-2 day');
 
         $this->browser()

@@ -132,7 +132,7 @@ class Product
     /**
      * @var bool Non-persisted Property to help if product is supplied by authenticated User
      */
-    private bool $isSuppliedByAuthenticatedUser;
+    private bool $isSuppliedByAuthenticatedUser = false;
 
     public function __construct()
     {
