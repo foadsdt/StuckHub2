@@ -2,6 +2,7 @@
 
 namespace App\State;
 
+use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\DailyQuest;
@@ -23,7 +24,13 @@ class DailyQuestStateProvider implements ProviderInterface
         new DailyQuest(new \DateTime('yesterday')),
         ];*/
 
-        return $this->createQuests();
+        if ($operation instanceof CollectionOperationInterface) {
+            return $this->createQuests();
+        }
+
+        $quests = $this->createQuests();
+        return $quests[$uriVariables['stringDate']] ?? null;
+
 
     }
 
