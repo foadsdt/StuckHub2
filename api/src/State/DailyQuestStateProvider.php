@@ -4,17 +4,21 @@ namespace App\State;
 
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\Pagination;
+use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\DailyQuest;
 use App\ApiResource\QuestProduct;
 use App\Enum\DailyQuestStatusEnum;
 use App\Repository\ProductRepository;
+use ArrayIterator;
 use DateMalformedStringException;
 
 class DailyQuestStateProvider implements ProviderInterface
 {
     public function __construct(
         private ProductRepository $productRepository,
+        private Pagination        $pagination,
     )
     {
     }
@@ -33,10 +37,26 @@ class DailyQuestStateProvider implements ProviderInterface
         ];*/
 
         if ($operation instanceof CollectionOperationInterface) {
-            return $this->createQuests();
+//            return $this->createQuests();
+
+            $currentPage = $this->pagination->getPage($context);
+            $itemsPerPage = $this->pagination->getLimit($operation, $context);
+            $offset = $this->pagination->getOffset($operation, $context);
+            $totalItems = $this->getTotalQuestsCount();
+
+            $quests = $this->createQuests($offset, $itemsPerPage);
+
+            return new TraversablePaginator(
+                new ArrayIterator($quests),
+                $currentPage,
+                $itemsPerPage,
+                $totalItems,
+            );
+
+
         }
 
-        $quests = $this->createQuests();
+        $quests = $this->createQuests(0, $this->getTotalQuestsCount());
         return $quests[$uriVariables['stringDate']] ?? null;
 
 
@@ -45,14 +65,14 @@ class DailyQuestStateProvider implements ProviderInterface
     /**
      * @throws DateMalformedStringException
      */
-    private function createQuests(): array
+    private function createQuests(int $offset, int $limit = 50): array
     {
 
         $products = $this->productRepository->findBy([], [], 10);
 
         $quests = [];
 
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = $offset; $i < $offset + $limit; $i++) {
             $quest = new DailyQuest(new \DateTimeImmutable(sprintf('- %d days', $i)));
             $quest->questName = sprintf('Quest %d', $i);
             $quest->description = sprintf('Description %d', $i);
@@ -78,6 +98,11 @@ class DailyQuestStateProvider implements ProviderInterface
         }
 
         return $quests;
+    }
+
+    private function getTotalQuestsCount(): int
+    {
+        return 50;
     }
 
 
