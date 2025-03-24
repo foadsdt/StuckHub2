@@ -4,13 +4,15 @@ namespace App\Tests\Api;
 
 use App\Factory\ProductFactory;
 use App\Factory\UserFactory;
+use Zenstruck\Browser\Json;
 
 class UserTest extends ApiTestCase
 {
     public function testPostToCreateUser()
     {
 
-        $res = $this->browser()
+//        $res = $this->browser()
+        $this->browser()
             ->post('/users', [
                 'json' => [
                     'email' => 'test@test.com',
@@ -24,7 +26,14 @@ class UserTest extends ApiTestCase
                     'Content-Type' => 'application/ld+json; charset=utf-8',
                 ]
             ])
+            ->use(function (Json $json) {
+                $json
+                    ->assertMissing('id')
+                    ->assertMissing('password');
+
+            })
             ->assertStatus(201);
+//        dd($res->json());
     }
 
     public function testPatchToUpdateUser()
@@ -40,13 +49,16 @@ class UserTest extends ApiTestCase
             ->patch('/users/' . $user->getId(), [
                 'json' => [
                     'username' => 'test2',
+//                    'newCustomIntField' => 999
+                    'id' => 47
                 ],
                 'headers' => [
                     'Accept' => 'application/ld+json',
                     'Content-Type' => 'application/merge-patch+json; charset=utf-8',
                 ]
             ])
-            ->assertStatus(200);;
+            ->assertStatus(200);
+
     }
 
     public function testProductsCannotBeStolen()
