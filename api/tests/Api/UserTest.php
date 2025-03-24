@@ -18,8 +18,6 @@ class UserTest extends ApiTestCase
                     'email' => 'test@test.com',
                     'password' => 'password',
                     'username' => 'test',
-                    'firstName' => 'test',
-                    'lastName' => 'test'
                 ],
                 'headers' => [
                     'Accept' => 'application/ld+json',
