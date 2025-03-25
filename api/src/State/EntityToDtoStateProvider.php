@@ -9,11 +9,8 @@ use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use App\ApiResource\UserApi;
-use App\Entity\Product;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfonycasts\MicroMapper\MicroMapperInterface;
-use Traversable;
 
 class EntityToDtoStateProvider implements ProviderInterface
 {
@@ -23,7 +20,7 @@ class EntityToDtoStateProvider implements ProviderInterface
         private readonly ProviderInterface $collectionProvider,
         #[Autowire(service: ItemProvider::class)]
         private readonly ProviderInterface $itemProvider,
-        private MicroMapperInterface       $microMapper
+        private readonly MicroMapperInterface $microMapper
     )
     {
 
@@ -31,6 +28,9 @@ class EntityToDtoStateProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+
+        $resourceClass = $operation->getClass();
+
         if ($operation instanceof CollectionOperationInterface) {
             $entities = $this->collectionProvider->provide($operation, $uriVariables, $context);
 
@@ -38,7 +38,7 @@ class EntityToDtoStateProvider implements ProviderInterface
 
             $dtos = [];
             foreach ($entities as $entity) {
-                $dtos[] = $this->mapEntityToDto($entity);
+                $dtos[] = $this->mapEntityToDto($entity, $resourceClass);
             }
 
             return new TraversablePaginator(
@@ -55,14 +55,14 @@ class EntityToDtoStateProvider implements ProviderInterface
             return null;
         }
 
-        return $this->mapEntityToDto($entity);
+        return $this->mapEntityToDto($entity, $resourceClass);
 
 
     }
 
-    private function mapEntityToDto(object $entity): object
+    private function mapEntityToDto(object $entity, string $resourceClass): object
     {
-        return $this->microMapper->map($entity, UserApi::class);
+        return $this->microMapper->map($entity, $resourceClass);
     }
 
 
