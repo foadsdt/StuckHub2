@@ -12,6 +12,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\UserApi;
 use App\Entity\Product;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfonycasts\MicroMapper\MicroMapperInterface;
 use Traversable;
 
 class EntityToDtoStateProvider implements ProviderInterface
@@ -22,6 +23,7 @@ class EntityToDtoStateProvider implements ProviderInterface
         private readonly ProviderInterface $collectionProvider,
         #[Autowire(service: ItemProvider::class)]
         private readonly ProviderInterface $itemProvider,
+        private MicroMapperInterface       $microMapper
     )
     {
 
@@ -60,25 +62,8 @@ class EntityToDtoStateProvider implements ProviderInterface
 
     private function mapEntityToDto(object $entity): object
     {
-        $dto = new UserApi();
-        $dto->id = $entity->getId();
-        $dto->email = $entity->getEmail();
-        $dto->username = $entity->getUsername();
-
-        $dto->products = array_map(fn($product) => $this->mapProductToDto($product), $entity->getProducts()->toArray());
-//        $dto->products = $entity->getProducts()->toArray();
-
-        $dto->newCustomIntField = rand(1, 10);
-
-        return $dto;
-
+        return $this->microMapper->map($entity, UserApi::class);
     }
 
-    private function mapProductToDto(Product $product): array
-    {
-        return [
-            'id' => $product->getId(),
-            'name' => $product->getName(),
-        ];
-    }
+
 }

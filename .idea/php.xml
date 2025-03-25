@@ -184,6 +184,7 @@
       <path value="$PROJECT_DIR$/api/vendor/zenstruck/callback" />
       <path value="$PROJECT_DIR$/api/vendor/behat/mink" />
       <path value="$PROJECT_DIR$/api/vendor/mtdowling/jmespath.php" />
+      <path value="$PROJECT_DIR$/api/vendor/symfonycasts/micro-mapper" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.4" />

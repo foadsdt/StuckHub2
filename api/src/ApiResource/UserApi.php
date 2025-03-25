@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
         new Get(),
         new GetCollection(),
         new Post(
-            security: 'is_granted("ROLE_PUBLIC_ACCESS")',
+            security: 'is_granted("PUBLIC_ACCESS")',
             validationContext: ['groups' => ['Default', 'postValidation']],
         ),
         new Patch(

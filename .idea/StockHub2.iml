@@ -39,6 +39,7 @@
       <excludeFolder url="file://$MODULE_DIR$/api/vendor/mtdowling/jmespath.php" />
       <excludeFolder url="file://$MODULE_DIR$/api/vendor/zenstruck/browser" />
       <excludeFolder url="file://$MODULE_DIR$/api/vendor/zenstruck/callback" />
+      <excludeFolder url="file://$MODULE_DIR$/api/vendor/symfonycasts/micro-mapper" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
