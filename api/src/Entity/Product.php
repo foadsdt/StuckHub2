@@ -2,75 +2,12 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Link;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Repository\ProductRepository;
-use App\State\ProductStateProcessor;
-use App\State\ProductStateProvider;
-use App\Validator\IsValidSupplier;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\SerializedName;
-use Symfony\Component\Validator\Constraints as Assert;
 
-#[ApiResource(
-    operations: [
-        new GetCollection(),
-        new Get(
-            normalizationContext: [
-                'groups' => ['product:read']
-            ]
-        ),
-        new Post(
-            security: 'is_granted("ROLE_PRODUCT_CREATE")',
-            processor: ProductStateProcessor::class
-        ),
-        new Patch(
-        // security: 'is_granted("ROLE_ADMIN") or (is_granted("ROLE_PRODUCT_EDIT") and object.getSupplier() == user)',
-        // securityPostDenormalize: 'is_granted("ROLE_ADMIN") or (object.getSupplier() == user)',
-            security: 'is_granted("EDIT",object)',
-            processor: ProductStateProcessor::class
-//            securityPostDenormalize: 'is_granted("EDIT",object)',
-        ),
-        new Delete(
-            security: 'is_granted("ROLE_ADMIN")',
-        )
-    ],
-    normalizationContext: ['groups' => ['product:read', 'product:item:get']],
-    denormalizationContext: ['groups' => ['product:write']],
-    paginationItemsPerPage: 30,
-    provider: ProductStateProvider::class
-)]
-#[ApiResource(
-    uriTemplate: '/users/{user_id}/products.{_format}',
-    operations: [new GetCollection()],
-    uriVariables: [
-        'user_id' => new Link(
-            fromProperty: 'products',
-            fromClass: User::class
-        )
-    ],
-    normalizationContext: ['groups' => ['product:read']]
-)]
-#[ApiFilter(PropertyFilter::class)]
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\Table]
-#[ApiFilter(SearchFilter::class, strategy: 'partial', properties: ['supplier.username'])]
 class Product
 {
     #[ORM\Id]
@@ -79,53 +16,29 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['product:read', 'product:write', 'user:read', 'user:write'])]
-    #[ApiFilter(SearchFilter::class, strategy: 'partial')]
-    #[Assert\NotBlank]
-    private string $name;
+    private ?string $name;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['product:read', 'product:write', 'user:read', 'user:write'])]
-//    #[ApiProperty(security: 'is_granted("EDIT",object)')]
-    #[Assert\NotBlank]
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(['product:read', 'product:write', 'user:read', 'user:write'])]
-    #[ApiFilter(RangeFilter::class)]
-    #[Assert\GreaterThanOrEqual(0)]
     private ?int $quantity = 0;
 
     #[ORM\Column]
-    #[Groups(['product:read', 'product:write', 'user:read', 'user:write'])]
-    #[Assert\GreaterThanOrEqual(0)]
-    #[ApiFilter(RangeFilter::class)]
     private ?float $price = 0;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['product:read', 'product:write'])]
-    #[Assert\Valid]
-//    #[Assert\NotNull]
-    #[IsValidSupplier]
-    #[ApiFilter(SearchFilter::class)]
     private ?User $supplier = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['product:read', 'product:write'])]
-    #[Assert\NotNull]
     private ?Category $category = null;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['product:read'])]
     private ?\DateTime $createdAt;
 
     #[ORM\Column]
-    #[ApiFilter(BooleanFilter::class)]
-//    #[Groups(['product:read', 'product:write'])]
-//    #[ApiProperty(security: 'is_granted("EDIT",object)')]
-    #[Groups(['admin:read', 'admin:write', 'supplier:read', 'product:write'])]
     private bool $isVerified = false;
 
 
@@ -235,8 +148,6 @@ class Product
         $this->isVerified = $isVerified;
     }
 
-    #[Groups(['product:read'])]
-    #[SerializedName('isMine')]
     public function getIsSuppliedByAuthenticatedUser(): bool
     {
         if (!isset($this->isSuppliedByAuthenticatedUser)) {
