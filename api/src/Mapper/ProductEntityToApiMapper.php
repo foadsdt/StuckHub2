@@ -45,7 +45,9 @@ class ProductEntityToApiMapper implements MapperInterface
         $dto->description = $entity->getDescription();
         $dto->quantity = $entity->getQuantity();
         $dto->price = $entity->getPrice();
-        $dto->supplier = $this->microMapper->map($entity->getSupplier(), UserApi::class);
+        $dto->supplier = $this->microMapper->map($entity->getSupplier(), UserApi::class,[
+            MicroMapperInterface::MAX_DEPTH => 0
+        ]);
         $dto->category = [];
         $dto->createdAt = $entity->getCreatedAt();
         $dto->isMine = $this->security->getUser() && $this->security->getUser() === $entity->getSupplier();

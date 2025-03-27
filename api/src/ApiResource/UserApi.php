@@ -64,7 +64,7 @@ class UserApi
     public ?string $password = null;
 
     /**
-     * @var array <int, Product>
+     * @var array <int, ProductApi>
      */
     #[ApiProperty(writable: false)]
     public array $products = [];

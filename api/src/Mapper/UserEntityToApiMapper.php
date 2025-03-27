@@ -2,15 +2,23 @@
 
 namespace App\Mapper;
 
+use App\ApiResource\ProductApi;
 use App\ApiResource\UserApi;
 use App\Entity\Product;
 use App\Entity\User;
 use Symfonycasts\MicroMapper\AsMapper;
 use Symfonycasts\MicroMapper\MapperInterface;
+use Symfonycasts\MicroMapper\MicroMapperInterface;
 
 #[AsMapper(from: User::class, to: UserApi::class)]
 class UserEntityToApiMapper implements MapperInterface
 {
+
+    public function __construct(
+        private MicroMapperInterface $microMapper
+    )
+    {
+    }
 
     public function load(object $from, string $toClass, array $context): object
     {
@@ -35,9 +43,16 @@ class UserEntityToApiMapper implements MapperInterface
         $dto->email = $entity->getEmail();
         $dto->username = $entity->getUsername();
 
-        $dto->products = array_map(fn($product) => $this->mapProductToDto($product), $entity->getProducts()->toArray());
+        /** Product -> ProductApi **/
 
-//        $dto->products = $entity->getProducts()->toArray();
+        $dto->products = array_map(function (Product $product) {
+            return $this->microMapper->map($product, ProductApi::class, [
+                MicroMapperInterface::MAX_DEPTH => 0
+            ]);
+        }, $entity->getVerifiedProducts()->getValues());
+
+        //  $dto->products = array_map(fn($product) => $this->mapProductToDto($product), $entity->getProducts()->toArray());
+        //  $dto->products = $entity->getProducts()->toArray();
 
         $dto->newCustomIntField = rand(1, 10);
 
