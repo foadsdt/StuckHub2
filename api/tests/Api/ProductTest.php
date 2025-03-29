@@ -39,7 +39,7 @@ class ProductTest extends ApiTestCase
             'quantity',
             'price',
             'supplier',
-            'category',
+//            'category',
             'createdAt',
             'isMine'
         ]);
@@ -79,36 +79,48 @@ class ProductTest extends ApiTestCase
             'quantity',
             'price',
             'supplier',
-            'category',
+//            'category',
             'createdAt',
             'isMine'
         ]);
 
     }
 
-    public function testPostNewProduct()
+    public function testPostToCreateProduct()
     {
         $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_CREATE']]);
         $userToken = $this->getUserToken($user);
 
         $result = $this->browser()
+            ->actingAs($user)
             ->post('/products', [
-                'json' => [
-                    'name' => 'test',
-                    'quantity' => 5,
-                    'price' => 2000.0,
-                    'description' => 'test description',
-                    'category' => '/categories/' . CategoryFactory::createOne()->getId(),
-                    'supplier' => '/users/' . $user->getId()
-                ],
+                'json' => [],
                 'headers' => [
                     'Accept' => 'application/ld+json',
                     'Content-Type' => 'application/ld+json; charset=utf-8',
                     'Authorization' => 'Bearer ' . $userToken
                 ]
             ])
-            ->assertStatus(201);
+            ->assertStatus(422);
 
+        $result2 =
+            $this->browser()
+                ->post('/products', [
+                    'json' => [
+                        'name' => 'test',
+                        'quantity' => 5,
+                        'price' => 2000.0,
+                        'description' => 'test description',
+//                        'category' => '/categories/' . CategoryFactory::createOne()->getId(),
+//                        'supplier' => '/users/' . $user->getId()
+                    ],
+                    'headers' => [
+                        'Accept' => 'application/ld+json',
+                        'Content-Type' => 'application/ld+json; charset=utf-8',
+                        'Authorization' => 'Bearer ' . $userToken
+                    ]
+                ])
+                ->assertStatus(201);
 
         /******************************/
         /*****  HttpOptions::json *****/
@@ -120,8 +132,8 @@ class ProductTest extends ApiTestCase
                     'quantity' => 5,
                     'price' => 2000.0,
                     'description' => 'test description',
-                    'category' => '/categories/' . CategoryFactory::createOne()->getId(),
-                    'supplier' => '/users/' . $user->getId()
+//                    'category' => '/categories/' . CategoryFactory::createOne()->getId(),
+//                    'supplier' => '/users/' . $user->getId()
                 ]
             )
                 ->withHeaders([
@@ -147,7 +159,7 @@ class ProductTest extends ApiTestCase
                     'quantity' => 5,
                     'price' => 2000.0,
                     'description' => 'test description',
-                    'category' => '/categories/' . CategoryFactory::createOne()->getId(),
+//                    'category' => '/categories/' . CategoryFactory::createOne()->getId(),
                 ],
                 'headers' => [
                     'Accept' => 'application/ld+json',
@@ -171,7 +183,7 @@ class ProductTest extends ApiTestCase
                     'quantity' => 5,
                     'price' => 2000.0,
                     'description' => 'test description',
-                    'category' => '/categories/' . CategoryFactory::createOne()->getId(),
+//                    'category' => '/categories/' . CategoryFactory::createOne()->getId(),
                     'supplier' => '/users/' . $user->getId()
                 ],
                 'headers' => [
@@ -188,12 +200,12 @@ class ProductTest extends ApiTestCase
         $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_EDIT']]);
 //        $user = UserFactory::createOne();
 
-        $category = CategoryFactory::createOne();
+//        $category = CategoryFactory::createOne();
 
         $product = ProductFactory::createOne(
             [
                 'supplier' => $user,
-                'category' => $category,
+//                'category' => $category,
             ]
         );
 
@@ -201,7 +213,7 @@ class ProductTest extends ApiTestCase
             ->actingAs($user)
             ->patch('/products/' . $product->getId(), [
                 'json' => [
-                    'quantity' => 500,
+                    'quantity' => 50,
                 ],
                 'headers' => [
                     'Accept' => 'application/ld+json',
@@ -209,7 +221,7 @@ class ProductTest extends ApiTestCase
                 ]
             ])
             ->assertStatus(200)
-            ->assertJsonMatches('quantity', 500);
+            ->assertJsonMatches('quantity', 50);
 
 
         $user2 = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_EDIT']]);
@@ -217,7 +229,7 @@ class ProductTest extends ApiTestCase
             ->actingAs($user2)
             ->patch('/products/' . $product->getId(), [
                 'json' => [
-                    'quantity' => 500,
+                    'quantity' => 50,
                 ],
                 'headers' => [
                     'Accept' => 'application/ld+json',
@@ -255,7 +267,7 @@ class ProductTest extends ApiTestCase
             ->actingAs($user)
             ->patch('/products/' . $product->getId(), [
                 'json' => [
-                    'quantity' => 500
+                    'quantity' => 50
                 ],
                 'headers' => [
                     'Accept' => 'application/ld+json',
@@ -263,7 +275,7 @@ class ProductTest extends ApiTestCase
                 ]
             ])
             ->assertStatus(200)
-            ->assertJsonMatches('quantity', 500)
+            ->assertJsonMatches('quantity', 50)
             ->assertJsonMatches('isVerified', false);
 
 
@@ -282,7 +294,7 @@ class ProductTest extends ApiTestCase
             ->actingAs($user)
             ->patch('/products/' . $product->getId(), [
                 'json' => [
-                    'quantity' => 500
+                    'quantity' => 50
                 ],
                 'headers' => [
                     'Accept' => 'application/ld+json',
@@ -290,7 +302,7 @@ class ProductTest extends ApiTestCase
                 ]
             ])
             ->assertStatus(200)
-            ->assertJsonMatches('quantity', 500)
+            ->assertJsonMatches('quantity', 50)
             ->assertJsonMatches('isVerified', false);;
 
     }
@@ -308,7 +320,7 @@ class ProductTest extends ApiTestCase
             ->actingAs($user)
             ->patch('/products/' . $product->getId(), [
                 'json' => [
-                    'quantity' => 500
+                    'quantity' => 50
                 ],
                 'headers' => [
                     'Accept' => 'application/ld+json',
@@ -316,7 +328,7 @@ class ProductTest extends ApiTestCase
                 ]
             ])
             ->assertStatus(200)
-            ->assertJsonMatches('quantity', 500)
+            ->assertJsonMatches('quantity', 50)
             ->assertJsonMatches('isVerified', false)
             ->assertJsonMatches('isMine', true);
 
@@ -331,22 +343,59 @@ class ProductTest extends ApiTestCase
             'supplier' => $user,
         ]);
 
-        $this->browser()
-            ->actingAs($user)
-            ->patch('/products/' . $product->getId(), [
-                'json' => [
-                    'isVerified' => true
-                ],
-                'headers' => [
-                    'Accept' => 'application/ld+json',
-                    'Content-Type' => 'application/merge-patch+json; charset=utf-8',
-                ]
-            ])
-            ->assertStatus(200)
-            ->assertJsonMatches('isVerified', true);
+        $res =
+            $this->browser()
+                ->actingAs($user)
+                ->patch('/products/' . $product->getId(), [
+                    'json' => [
+                        'isVerified' => true
+                    ],
+                    'headers' => [
+                        'Accept' => 'application/ld+json',
+                        'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                    ]
+                ])
+                ->assertStatus(200)
+                ->assertJsonMatches('isVerified', true);;
 
         NotificationFactory::repository()->assert()->count(1);
 
+    }
+
+    public function testPostToCreateProductWithLogin()
+    {
+        $user = UserFactory::createOne(['password' => '0000', 'roles' => ['ROLE_PRODUCT_CREATE']]);
+        $userToken = $this->getUserToken($user);
+
+        $this->browser()
+            ->actingAs($user)
+            ->post('/products', HttpOptions::json(
+                []
+            )
+                ->withHeaders([
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/ld+json; charset=utf-8',
+                    'Authorization' => 'Bearer ' . $userToken
+                ])
+            )
+            ->assertStatus(422)
+            ->post('/products', HttpOptions::json(
+                [
+                    'name' => 'teeeeest',
+                    'quantity' => 5,
+                    'price' => 2000.0,
+                    'description' => 'test description',
+                    'supplier' => '/users/' . $user->getId(),
+                ]
+            )
+                ->withHeaders([
+                    'Accept' => 'application/ld+json',
+                    'Content-Type' => 'application/ld+json; charset=utf-8',
+                    'Authorization' => 'Bearer ' . $userToken
+                ])
+            )
+            ->assertStatus(201)
+            ->assertJsonMatches('name', 'teeeeest');
     }
 
 }

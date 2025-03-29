@@ -3,18 +3,25 @@
 namespace App\Mapper;
 
 use App\ApiResource\UserApi;
+use App\Entity\Product;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\PasswordHasher;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfonycasts\MicroMapper\AsMapper;
 use Symfonycasts\MicroMapper\MapperInterface;
+use Symfonycasts\MicroMapper\MicroMapperInterface;
 
 #[AsMapper(from: UserApi::class, to: User::class)]
 class UserApiToEntityMapper implements MapperInterface
 {
 
-    public function __construct(private readonly UserRepository $userRepository,
-                                private readonly PasswordHasher $passwordHasher)
+    public function __construct(
+        private readonly UserRepository   $userRepository,
+        private readonly PasswordHasher   $passwordHasher,
+        private MicroMapperInterface      $microMapper,
+        private PropertyAccessorInterface $propertyAccessor
+    )
     {
     }
 
@@ -44,6 +51,19 @@ class UserApiToEntityMapper implements MapperInterface
         if ($dto->password) {
             $entity->setPassword($this->passwordHasher->hash($dto->password));
         }
+
+        $productEntities = [];
+
+        foreach ($dto->products as $productApi) {
+            $productEntities[] = $this->microMapper->map($productApi, Product::class, [
+                MicroMapperInterface::MAX_DEPTH => 0
+            ]);
+        }
+
+        $this->propertyAccessor->setValue($entity, 'products', $productEntities);
+
+
+        // ProductApi[] --> Product[]
 
         return $entity;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Validator;
 
+use App\ApiResource\UserApi;
 use App\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Validator\Constraint;
@@ -25,18 +26,20 @@ final class IsValidSupplierValidator extends ConstraintValidator
             return;
         }
 
-        assert($value instanceof User);
+        assert($value instanceof UserApi);
 
         $user = $this->security->getUser();
         if (!$user) {
             throw new \LogicException('IsSupplierValidator should only be used when a user is logged in');
         }
 
+        assert($user instanceof User);
+
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return;
         }
 
-        if ($value !== $user) {
+        if ($value->id !== $user->getId()) {
             $this->context->buildViolation($constraint->message)
                 //->setParameter('{{ value }}', $value)
                 ->addViolation();

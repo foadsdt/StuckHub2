@@ -66,7 +66,7 @@ class UserApi
     /**
      * @var array <int, ProductApi>
      */
-    #[ApiProperty(writable: false)]
+    #[ApiProperty()]
     public array $products = [];
 
 //    #[ApiProperty(readable: false)]

@@ -59,6 +59,51 @@ class UserTest extends ApiTestCase
 
     }
 
+    public function testProductsCanBeRemoved()
+    {
+        $user = UserFactory::createOne([
+                'roles' => ['ROLE_USER_EDIT']
+            ]
+        );
+
+        $otherUser = UserFactory::createOne();
+
+        $product = ProductFactory::createOne(['supplier' => $user, 'isVerified' => true]);
+
+        ProductFactory::createOne(['supplier' => $user, 'isVerified' => true]);
+
+        $product3 = ProductFactory::createOne(['supplier' => $otherUser, 'isVerified' => true]);
+
+        $res =
+            $this->browser()
+                ->actingAs($user)
+                ->patch('/users/' . $user->getId(), [
+                    'json' => [
+                        'products' => [
+                            '/products/' . $product->getId(),
+                            '/products/' . $product3->getId()
+                        ],
+                    ],
+                    'headers' => [
+                        'Accept' => 'application/ld+json',
+                        'Content-Type' => 'application/merge-patch+json; charset=utf-8',
+                    ]
+                ])
+                ->assertStatus(200)
+//                ->get('/users/' . $user->getId())
+//            ->dump()
+//            ->json()
+//            ->decoded()
+//            ->assertJsonMatches('length("products")', 2)
+//            ->assertJsonMatches('products[0]', '/products/' . $product->getId())
+//            ->assertJsonMatches('products[1]', '/products/' . $product3->getId())
+        ;
+//        dd($res->get('/users/' . $user->getId())->json()->decoded());
+//        die;
+//        dd($res->json()->decoded()['products']);
+
+    }
+
     public function testProductsCannotBeStolen()
     {
 

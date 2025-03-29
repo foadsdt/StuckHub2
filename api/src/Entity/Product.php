@@ -32,7 +32,7 @@ class Product
     private ?User $supplier = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Category $category = null;
 
     #[ORM\Column(type: 'datetime')]
@@ -47,9 +47,10 @@ class Product
      */
     private bool $isSuppliedByAuthenticatedUser = false;
 
-    public function __construct()
+    public function __construct(string $name)
     {
         $this->createdAt = new \DateTime();
+        $this->name = $name;
     }
 
     public function getId(): ?int

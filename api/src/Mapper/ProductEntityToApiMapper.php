@@ -4,6 +4,7 @@ namespace App\Mapper;
 
 use App\ApiResource\ProductApi;
 use App\ApiResource\UserApi;
+use App\Entity\Category;
 use App\Entity\Product;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfonycasts\MicroMapper\AsMapper;
@@ -42,16 +43,17 @@ class ProductEntityToApiMapper implements MapperInterface
         assert($dto instanceof ProductApi);
 
         $dto->name = $entity->getName();
+        $dto->isVerified = $entity->getIsVerified();
         $dto->description = $entity->getDescription();
         $dto->quantity = $entity->getQuantity();
         $dto->price = $entity->getPrice();
-        $dto->supplier = $this->microMapper->map($entity->getSupplier(), UserApi::class,[
+        $dto->supplier = $this->microMapper->map($entity->getSupplier(), UserApi::class, [
             MicroMapperInterface::MAX_DEPTH => 0
         ]);
-        $dto->category = [];
         $dto->createdAt = $entity->getCreatedAt();
         $dto->isMine = $this->security->getUser() && $this->security->getUser() === $entity->getSupplier();
 
         return $dto;
     }
+    
 }
